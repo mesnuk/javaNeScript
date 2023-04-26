@@ -1,14 +1,18 @@
-let data = [
-    {
-        id: 1,
-        name: 'Основи Програмуванняя'
-    },
-    {
-        id: 2,
-        name: 'Математичний аналіз'
-    },
-]
+import axios from "axios";
+
 export default async function handler(req: any, res:any) {
-    res.setHeader('Cache-Control', 'public, s-maxage, stale-while-revalidate=600')
-    res.status(200).json(data)
+    if (req.method === 'GET') {
+        const response = await axios.get('http://localhost:8080/api/subjects')
+        res.status(200).json(await response.data);
+    } else if (req.method === 'POST') {
+        const response = await axios.post('http://localhost:8080/api/subjects', req.body)
+        res.status(201).json(response.data);
+    } else if (req.method === 'PUT') {
+        const response = await axios.put(`http://localhost:8080/api/subjects/${req.body.id}`, req.body)
+        res.status(201).json(response.data);
+    }  else {
+        // Handle unsupported methods
+        res.setHeader('Allow', ['GET', 'POST', "PUT"]);
+        res.status(405).json({ message: `Method ${req.method} Not Allowed` });
+    }
 }
